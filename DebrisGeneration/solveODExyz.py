@@ -19,18 +19,18 @@ def solveODExyz(particle, deepestPoint):
     # SOLVEODEXYZ solves for the trajectory of one piece of debris
 
     # Surface area
-    A = particle[6]
-    # Aerodynamic drag coefficient
-    Cw = particle[8]
+    A = particle[5]
     # Particle mass
-    m = particle[7]
+    m = particle[6]
+    # Aerodynamic drag coefficient
+    Cw = particle[7]
 
     # Air density at laboratory conditions in kg/m^3 (Wikipedia)
     rho = 1.2041
     # Gravitational acceleration factor in m/s^2 (Wikipedia)
     g = 9.8067
 
-    y0 = np.concatenate((particle[:3], particle[9:12]))
+    y0 = np.concatenate((particle[:3], particle[8:11]))
 
     # Solve approximately to estimate the time interval and find the time interval with the deepest point
     opts = {"atol": 1e-6, "rtol": 1e-6}
