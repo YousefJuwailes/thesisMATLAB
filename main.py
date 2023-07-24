@@ -1,12 +1,14 @@
 from ABC_HFs import *
 from runParameter import *
+from scipy.io import loadmat
 
 import laspy
 import multiprocessing
 import matplotlib.pyplot as plt
 import time
 
-from scipy.io import loadmat
+finalDirectory  =  "/shome/yousef_j/thesisMATLAB/LawOfLargeNumbers"
+
 
 # import relevant data
 data = loadmat('A6.mat')
@@ -71,13 +73,13 @@ def run_simulation(start_index, end_index, results_queue):
 
 # Multiprocessing
 manager = multiprocessing.Manager()
-results_queue = manager.Queue()
+resultsQueue = manager.Queue()
 processes = []
 for i in range(numberOfCores): 
     start_index = i * simulations_per_core
     end_index = (i + 1) * simulations_per_core
     process = multiprocessing.Process(
-        target=run_simulation, args=(start_index, end_index, results_queue)
+        target=run_simulation, args=(start_index, end_index, resultsQueue)
     )
     process.start()
     processes.append(process)
@@ -89,8 +91,8 @@ for process in processes:
 # Get the results from the queue
 phi = []
 storageDestinations = []
-while not results_queue.empty():
-    phi_temp, storageDestinations_temp = results_queue.get()
+while not resultsQueue.empty():
+    phi_temp, storageDestinations_temp = resultsQueue.get()
     phi.extend(phi_temp)
     storageDestinations.extend(storageDestinations_temp)
 
@@ -105,13 +107,126 @@ plt.close()
 
 # Plotting simulated debris
 counter = 0
+locAvg, locStd, lengthSim, widthSim, angleSim = summaryStatistics(storageDestinations[0], pointOfImpact)
 for i in range(len(storageDestinations[0])):
-    if storageDestinations[0][i, 0] < 100:
+    point = storageDestinations[0][i]
+    if point[0] < 100:
         counter += 1
         continue
     else:
-        plt.scatter(storageDestinations[0][i, 0], storageDestinations[0][i, 1], color='black')
-plt.scatter(pointOfImpact[0], pointOfImpact[1], color='yellow')
+        plt.scatter(point[0], point[1], color='black')
+plt.scatter(pointOfImpact[0], pointOfImpact[1], color='Yellow')
+plt.scatter(locAvg[0], locAvg[1], color='red')
 plt.savefig("TopView")
 
 print("Number of accepted samples is", len(phi))
+print("Points exluded = ", counter)
+
+###### Law of Large numbers test ######
+###### Law of Large numbers test ######
+###### Law of Large numbers test ######
+###### Law of Large numbers test ######
+
+# def vanillaSimulation(startIdx, endIdx, results):
+#     N = endIdx - startIdx  
+#     avgX, avgY, avgZ, stdX, stdY, length, width, angle = [], [], [], [], [], [], [], []
+#     for i in range(N):
+#         storageDestinations = runParameter(ptCloud, lowestPoint, projectileMass, projectileLength, 
+#                                            projectileVelocity, pointOfImpact, psi, phi, c, b, minPen, maxPen, devPen, KDTree,)
+#         locAvg, locStd, lengthSim, widthSim, angleSim = summaryStatistics(storageDestinations, pointOfImpact)
+#         avgX.append(locAvg[0])  
+#         avgY.append(locAvg[1])  
+#         avgZ.append(locAvg[2])  
+#         stdX.append(locStd[0])  
+#         stdY.append(locStd[1])  
+#         length.append(lengthSim)
+#         width.append(widthSim) 
+#         angle.append(angleSim)
+#     results.put((avgX, avgY, avgZ, stdX, stdY, length, width, angle))
+
+# # Multiprocessing
+# manager = multiprocessing.Manager()
+# resultsQueue = manager.Queue()
+# processes = []
+# for i in range(numberOfCores): 
+#     start_index = i * simulations_per_core
+#     end_index = (i + 1) * simulations_per_core
+#     process = multiprocessing.Process(
+#         target=vanillaSimulation, args=(start_index, end_index, resultsQueue)
+#     )
+#     process.start()
+#     processes.append(process)
+
+# # Wait for all processes to finish
+# for process in processes:
+#     process.join()
+
+# avgX, avgY, avgZ, stdX, stdY, length, width, angle = [], [], [], [], [], [], [], []
+# while not resultsQueue.empty():
+#     avgX_temp, avgY_temp, avgZ_temp, stdX_temp, stdY_temp, length_temp, width_temp, angle_temp = resultsQueue.get()
+#     avgX.extend(avgX_temp)
+#     avgY.extend(avgY_temp)
+#     avgZ.extend(avgZ_temp)
+#     stdX.extend(stdX_temp)
+#     stdY.extend(stdY_temp)
+#     length.extend(length_temp)
+#     width.extend(width_temp)
+#     angle.extend(angle_temp)
+
+
+# storageDestinations = runParameter(ptCloud, lowestPoint, projectileMass, projectileLength, 
+#                                            projectileVelocity, pointOfImpact, psi, phi, c, b, minPen, maxPen, devPen, KDTree,)
+# locAvg, locStd, lengthSim, widthSim, angleSim = summaryStatistics(storageDestinations, pointOfImpact)
+
+# # Plotting simulated debris
+# counter = 0
+# for i in range(len(storageDestinations)):
+#     if storageDestinations[i, 0] < 100:
+#         counter += 1
+#         continue
+#     else:
+#         plt.scatter(storageDestinations[i, 0], storageDestinations[i, 1], color='black')
+# plt.scatter(pointOfImpact[0], pointOfImpact[1], color='Yellow')
+# plt.scatter(locAvg[0], locAvg[1], color='red')
+# plt.savefig("TopView")
+
+# plot posterior distribution of phi
+# plt.hist(avgX)
+# plt.savefig(finalDirectory + "/avgX")
+# plt.clf()
+# plt.close()
+
+# plt.hist(avgY)
+# plt.savefig(finalDirectory + "/avgY")
+# plt.clf()
+# plt.close()
+
+# plt.hist(avgZ)
+# plt.savefig(finalDirectory + "/avgZ")
+# plt.clf()
+# plt.close()
+
+# plt.hist(stdX)
+# plt.savefig(finalDirectory + "/stdX")
+# plt.clf()
+# plt.close()
+
+# plt.hist(stdY)
+# plt.savefig(finalDirectory + "/stdY")
+# plt.clf()
+# plt.close()
+
+# plt.hist(length)
+# plt.savefig(finalDirectory + "/length")
+# plt.clf()
+# plt.close()
+
+# plt.hist(width)
+# plt.savefig(finalDirectory + "/width")
+# plt.clf()
+# plt.close()
+
+# plt.hist(angle)
+# plt.savefig(finalDirectory + "/angle")
+# plt.clf()
+# plt.close()

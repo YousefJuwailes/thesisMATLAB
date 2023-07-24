@@ -3,8 +3,15 @@ import numpy as np
 def summaryStatistics(debrisLocations, pointOfImpact):
     # summary statistics for the data
     #1. average location and its std
-    locAvg  = np.array([np.average(debrisLocations[:, 0]), np.average(debrisLocations[:, 1])])
-    locStd  = np.array([np.std(debrisLocations[:, 0]), np.std(debrisLocations[:, 1])])
+    debrisLocations = debrisLocations[debrisLocations[:, 0] >= 100]
+    locAvg = np.array([
+        np.average(debrisLocations[:, 0]),
+        np.average(debrisLocations[:, 1])
+    ])
+    locStd = np.array([
+        np.std(debrisLocations[:, 0]),
+        np.std(debrisLocations[:, 1])
+    ])
 
     #2. area covered by the debris
     excludedIndicies = []
@@ -22,9 +29,9 @@ def summaryStatistics(debrisLocations, pointOfImpact):
     width   = Ymax - Ymin
 
     #3. angle the avg point makes wrt crash location
-    vec     = locAvg - pointOfImpact[:2]
+    vec     = locAvg[:2] - pointOfImpact[:2]
     angle   = np.rad2deg(np.arctan(vec[1]/vec[0]))
-
+    
     return locAvg, locStd, length, width, angle
 
 
