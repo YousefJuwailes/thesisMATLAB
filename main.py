@@ -1,6 +1,7 @@
 from ABC_HFs import *
 from runParameter import *
 from scipy.io import loadmat
+from HF import *
 
 import laspy
 import multiprocessing
@@ -48,7 +49,7 @@ start_time = time.time()
 
 # ABC and multiprocessing parameters
 h = 0.2     # tolerence is 10%
-N = 1000    # attempts to simulate a sample from the posterior
+N = 40    # attempts to simulate a sample from the posterior
 numberOfCores = 40
 simulations_per_core = int(N/numberOfCores)
 
@@ -61,10 +62,12 @@ def run_simulation(start_index, end_index, results_queue):
     storage_destinations_result = []
     for i in range(N):
         phi = np.random.uniform(0.81, 0.95)
+        phi = 0.86
         storageDestinations = runParameter(ptCloud, lowestPoint, projectileMass, projectileLength, 
                                            projectileVelocity, pointOfImpact, psi, phi, c, b, minPen, maxPen, devPen, KDTree,)
         
         acceptSample = distance(actualDebris, storageDestinations, h, pointOfImpact)
+        acceptSample = True
         if acceptSample:
             phi_result.append(phi)
             storage_destinations_result.append(storageDestinations)
@@ -106,21 +109,9 @@ plt.clf()
 plt.close()
 
 # Plotting simulated debris
-counter = 0
-locAvg, locStd, lengthSim, widthSim, angleSim = summaryStatistics(storageDestinations[0], pointOfImpact)
-for i in range(len(storageDestinations[0])):
-    point = storageDestinations[0][i]
-    if point[0] < 100:
-        counter += 1
-        continue
-    else:
-        plt.scatter(point[0], point[1], color='black')
-plt.scatter(pointOfImpact[0], pointOfImpact[1], color='Yellow')
-plt.scatter(locAvg[0], locAvg[1], color='red')
-plt.savefig("TopView")
+Plot(storageDestinations[0], pointOfImpact)
 
 print("Number of accepted samples is", len(phi))
-print("Points exluded = ", counter)
 
 ###### Law of Large numbers test ######
 ###### Law of Large numbers test ######
