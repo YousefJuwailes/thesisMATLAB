@@ -6,7 +6,7 @@ from DebrisGeneration.collisionPoints import *
 
 def runParameter(ptCloud, lowestPoint, projectileMass, projectileLength, projectileVelocity,
                  pointOfImpact, psi, phi, c, b, minimumPenetrationDistance,
-                 maximumPenetrationDistance, standardDeviation, KDTree):
+                 maximumPenetrationDistance, standardDeviation):
     
     # runParameter executes the simulation with the given parameters and returns the final positions of the debris.
     # dummyCloud and ptCloud must be variables in the workspace.
@@ -19,6 +19,6 @@ def runParameter(ptCloud, lowestPoint, projectileMass, projectileLength, project
     destinations = np.zeros((N, 3))
     for i in range(N):
         t, xyz = solveODExyz(debris[i, :], lowestPoint)
-        destinations[i, :] = collisionPoints(xyz, ptCloud, debris[i, 11], KDTree)
+        destinations[i, :] = collisionPoints(xyz, ptCloud, debris[i, 11], ptCloud)
 
     return destinations
